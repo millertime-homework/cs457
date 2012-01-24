@@ -37,7 +37,7 @@ it.
 
 Now suppose that we define the following function using multiApply:
 
-q f n m x = multiApply (multiApply f n) m x
+> q f n m x = multiApply (multiApply f n) m x
 
 What is the type of this function, and what exactly does it do?
 What law of multiApply does this suggest?
