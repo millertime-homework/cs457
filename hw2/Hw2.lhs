@@ -138,6 +138,7 @@ This is the same thing as the function even, because adding 1 to something will
 flip its evenness to oddness, and vice versa.
 
 > myEven = odd . (1+)
+> yetAnotherEven n = odd $ (1+) $ n
 
 *Hw2> myEven 6
 True
