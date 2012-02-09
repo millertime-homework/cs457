@@ -207,9 +207,10 @@ that [O,I,I,O,O,O] == [O,I,I,O] ? I don't believe it is. At this point I'd
 really like to change the way BinNum is instantiated in Eq. Can we do so with 
 the BinNum type alias we defined?
 
-instance Eq BinNum where
-  (==) x y = (truncateBin x) (truncateBin y)
-    where truncate b = ???
+--> instance Eq BinNum where
+-->   x == y = x `truncEq` y
 
-I'm not sure if you can nest where clauses or exactly how to implement a 
-truncate function on these neat BinNums we've created.
+--> truncEq :: BinNum -> BinNum -> Bool
+--> truncEq x y = and $ zipWith (==) x y
+
+This truncates extra ONES as well as extra zeros!! BAD!
