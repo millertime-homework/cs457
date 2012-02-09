@@ -204,8 +204,8 @@ False
 This is great. My implementation is producing extra leading zeros. There is an
 issue with "deriving Eq" as it applies to a list of Bits. Is it really False 
 that [O,I,I,O,O,O] == [O,I,I,O] ? I don't believe it is. At this point I'd
-really like to change the way BinNum is instantiated in Eq. Can we do so with the
-BinNum type alias we defined?
+really like to change the way BinNum is instantiated in Eq. Can we do so with 
+the BinNum type alias we defined?
 
 instance Eq BinNum where
   (==) x y = (truncateBin x) (truncateBin y)
