@@ -1,0 +1,102 @@
+% Term Project: Proposal
+% CS457 Functional Programming
+% Professor: Jones
+% Russell Miller
+% Feb 15 2012
+
+\documentclass{article}
+\usepackage{anysize}
+\usepackage{wasysym}
+\usepackage{graphicx}
+
+\marginsize{2cm}{2cm}{2cm}{2cm}
+
+\title{Term Project: Proposal\\
+CS457 Functional Programming\\
+with Professor Mark Jones\\
+Winter 2012}
+\author{Russell Miller}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section*{Abstract}
+My goal is to work with a Haskell library to create MIDI drum tracks. In doing 
+my own research, as well as speaking with you (Mark), I've discovered the 
+Haskore Computer Music System.\\
+\\
+I'd like to dive in and attempt to create some interesting music samples. I 
+imagine this will not take very much work. I've already installed Haskore on my
+development laptop. Once I've determined the basics, I'd 
+like to simplify the steps by writing a Haskell program that works as a wrapper
+to abstract the design of the tracks. I'd like to focus on things that 
+differentiate styles of drum parts.\\
+\\
+Being a guitar player and not a drummer I'm not sure how good the quality will 
+be, musically speaking.
+
+\section*{Motivation (A Side Note)}
+I feel like there's value in reiterating why I chose this topic. It was somewhat
+of an epiphany. I have a project for a different class where I'm attempting to
+do a simple music production by recording and editing some audio. One of the 
+ideas I had along the way was to record myself on guitar, and then use a MIDI
+keyboard to add a drum part.\\
+\\
+However, since Haskore seems to be capable I would rather do something more
+programming-related and come up with the drum track using a Haskell library. I
+am really hoping my other teacher (not a CS course) is impressed.
+
+\section*{Some Initial Thoughts}
+The first thing I did is set this up on my development machine, which is a Macbook
+running OSX Lion (10.7.2). The steps to do so (using cabal) are outlined on the Haskore 
+website\footnote{http://www.haskell.org/haskellwiki/Haskore}.\\
+\\
+The installation steps were uneventful. Moving on to the simple example, I put that into
+a Haskell source file and tried to load it. They don't tell you exactly what part of the
+Haskore system to import so I got stuck at that point.\\
+\\
+On the Haskore website there are also helpful links, and I followed the link to
+``A Dummy's Guide to Haskore''\footnote{https://github.com/nfjinjing/haskore-guide/blob/master/doc/index.markdown}.
+This guide is written in Markdown, and Github is able to parse that just fine. The first part
+of this guide helps you make sure Haskore is set up correctly. It turns out I wasn't quite
+ready, because GHCi couldn't find the Haskore module. Some searching resulted in discovering
+I also needed to install the ``haskore-vintage'' package.
+\begin{verbatim}
+$ cabal install haskore-vintage
+\end{verbatim}
+I proceeded to the ``Hello World'' example and tried it out and it worked. 
+
+\section*{Scaling Potential}
+We talked in class about being able to scale. The first thing that comes to my mind
+for a way to scale this \emph{down} is to turn this into more of a Haskore tutorial,
+demoing what I was able to do. If I am working on creating a good track and I run out
+of time I can simply outline the steps I took.\\
+\\
+A way to scale this project up could be to add some sort of fancy front end to it, possibly. 
+If I get done in an hour or two and my work feels trivial I'll talk to you more about how to
+beef it up.
+
+\section*{Timeline}
+Over the next 5 weeks I will need to accomplish some significant tasks. My end goal is to
+have some sort of Haskell program that can create MIDI drum tracks. Right now I was just able
+to create a MIDI file that plays a single note.
+\subsection*{Week 1 - Simple Drum Instrumental}
+The single note that the ``Hello World'' example plays is on a Grand Piano. I will need to
+figure out how to do drum sounds and hear what the different notes sound like. I imagine
+it will take some time to get through the list of 128 sounds that are provided by the MIDI
+standard and pick the ones I want to use.
+\subsection*{Week 2 - Tempo}
+I'm not sure how tempo works with Haskore, but I need to spend some time figuring out how I
+can use tempo as a parameter for my final program. If you can only create drum tracks at one
+speed they won't be able to fit together with other instruments very well.
+\subsection*{Week 3 - A Few Good Songs}
+I'll try to get some input from a friend of mine that plays drums on what some standard
+drumming patterns are, to attempt to create MIDI tracks like them. Once I've done that, I'll analyze
+how I can parameterize my program to customize songs in this way.
+\subsection*{Week 4 \& 5 - Final Touch Ups}
+At this point I will have a better idea exactly how the final product is going to look.
+It will take the rest of the time to get it polished and presentable.
+
+\end{document}
