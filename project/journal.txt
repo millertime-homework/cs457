@@ -1,0 +1,10 @@
+Journal of progress with Haskore
+--------------------------------
+
+2-16-12
+
+Today was the day we turned in the proposal. At that point I had been able to
+create a midi file that played a single chord.
+
+I'm continuing with the Dummy Guide and was able to create just the note C for
+1 quarter note. Then I made the C major chord.
