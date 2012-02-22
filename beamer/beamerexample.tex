@@ -1,0 +1,23 @@
+\documentclass{beamer}
+\usetheme{default}
+
+\begin{document}
+
+\frame[containsverbatim]
+{
+ \frametitle{Just Because You Can...}
+  \begin{verbatim}
+gauss = do count <- newIORef 0
+           total  <- newIORef 0
+           let loop
+             = do t <- readIORef total
+                  c <- readIORef count
+                  if (c>=11)
+                     then return t
+                     else dowriteIORef total (t+c)
+                  writeIORef count (c+1)
+                  loop
+               loop
+  \end{verbatim}
+}
+\end{document}
