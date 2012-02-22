@@ -11,6 +11,9 @@ Russell Miller
 
 > type BinNum = [Bit]
 
+> data BinaryNum = BN [Bit]
+> unBN (BN x) = x
+
 a) toBinNum
         Convert an integer to a binary number.
 
@@ -21,6 +24,9 @@ on the front of a cons operator.
 
 Note: I'd argue that (toBinNum 0) is better represented as [] to remove the 
 unnecessary leading zeros.
+
+> toBinaryNum :: Integer -> BinaryNum
+> toBinaryNum  = BN . toBinNum
 
 > toBinNum   :: Integer -> BinNum
 > toBinNum n | n==0   = [O]
@@ -53,10 +59,13 @@ div, I'm multiplying by 2 on my recursive calls. And each I or O determines
 whether the resulting number momentarily becomes odd or even, by either adding
 1 or 0 to whatever else we calculate on the recursive part.
 
+> fromBinaryNum :: BinaryNum -> Integer
+> fromBinaryNum = fromBinNum . unBN
+
 > fromBinNum :: BinNum -> Integer
 > fromBinNum []     = 0
-> fromBinNum (O:ds) = 0 + 2 * (fromBinNum ds)
-> fromBinNum (I:ds) = 1 + 2 * (fromBinNum ds)
+> fromBinNum (O:ds) = 0 + 2 * fromBinNum ds
+> fromBinNum (I:ds) = 1 + 2 * fromBinNum ds
 
 Basic Tests:
 *Hw4> map (fromBinNum . toBinNum) [1..10]
@@ -109,6 +118,11 @@ how. I tried passing an I into the recursive call, but it made the addition
 very inconsistent. Sometimes I needed another I, sometimes I didn't. That's
 when I finally realized that inc does JUST what I need - it "carries the I".
 
+> addBN :: BinaryNum -> BinaryNum -> BinaryNum
+> addBN (BN x) (BN y) = BN (add x y)
+
+--> addBN x y = BN (add (unBN x) (unBN y))
+ 
 > add :: BinNum -> BinNum -> BinNum
 > add []     ds     = ds ++ [O]
 > add ds     []     = ds ++ [O]
@@ -150,6 +164,23 @@ d) mul
 
 I used Wikipedia as a refernce for long multiplication ideas. Here is their 
 example:
+
+clean (x:xs) = cons x (clean xs)
+clean []     = []
+
+clean (O:xs) = cons O (clean xs)
+             {-case clean xs of
+                 [] -> []
+                 ys -> O : ys -}
+clean (x:xs) = cons x (clean xs)
+clean []     = [] 
+
+clean = foldr cons []
+
+cons O [] = []
+cons x ys = x : ys
+
+
 
        1011   (this is 11 in binary)
      x 1110   (this is 14 in binary)
@@ -207,10 +238,14 @@ that [O,I,I,O,O,O] == [O,I,I,O] ? I don't believe it is. At this point I'd
 really like to change the way BinNum is instantiated in Eq. Can we do so with 
 the BinNum type alias we defined?
 
---> instance Eq BinNum where
--->   x == y = x `truncEq` y
+> instance Eq BinaryNum where
+>   BN x == BN y = x `eqBN` y
 
 --> truncEq :: BinNum -> BinNum -> Bool
 --> truncEq x y = and $ zipWith (==) x y
 
 This truncates extra ONES as well as extra zeros!! BAD!
+
+> eqBN (x:xs) (y:ys) = x==y && eqBN xs ys
+> eqBN []     ys     = all (O==) ys
+> eqBN xs     []     = all (O==) xs
