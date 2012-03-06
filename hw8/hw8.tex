@@ -1,0 +1,104 @@
+% CS457 HW8
+
+\documentclass{article}
+\usepackage{anysize}
+\usepackage{amssymb}
+\usepackage{graphicx}
+
+\marginsize{2cm}{2cm}{2cm}{2cm}
+
+\title{CS457 Functional Programming\\
+Mark Jones Winter 2012\\
+Homework 8}
+\author{Russell Miller}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section*{QUESTION 1}
+\textbf{Prove the following law holds for all \tt{f, e, and g.}}
+\begin{verbatim}
+         foldr f e . map g = foldr (f . g) e
+\end{verbatim}
+
+\noindent I'm going to rewrite this law using a variable xs to represent the
+list argument for each side. We'll say that this law is P(xs).
+\begin{verbatim}
+         P(xs) = (foldr f e . map g) xs = (foldr (f . g) e) xs
+\end{verbatim}
+
+\noindent Similar to the proof we did in class, we will need to prove 3 cases:
+P(\tt []\rm), P($\bot$), and P(xs) $\Rightarrow$ P(x:xs),\\
+where $\bot$ is execution that does not
+terminate properly.\\
+\\
+First we need the definition of \tt foldr:
+\begin{verbatim}
+         foldr f z []     = z                   (foldr.0)
+         foldr f z (x:xs) = f x (foldr f z xs)  (foldr.1)
+\end{verbatim}
+
+\rm (found in the Prelude using Hugs's \tt :f \rm command.)\\
+\\
+The definition of map we defined in class.
+\begin{verbatim}
+        map f []           = []                 (map.0)
+        map f (x:xs)       = f x : map f xs     (map.1)
+\end{verbatim}
+
+\noindent Great! \tt foldr \rm and \tt map \rm are defined for \tt [] and \tt x:xs\rm.
+Now we need to come up with laws about \tt map \rm and \tt foldr
+\rm for the case of $\bot$.\\
+\\
+In class we talked about \tt map f $\bot$\rm .\\
+\indent\indent\indent \tt    map f $\bot$       = $\bot$ (map.$\bot$)
+\\
+\rm By looking at the definition of \tt foldr\rm, it is clear that it will work the same.
+It does something to each element of a list, and recursively works through the list
+the same way map does just that.
+Thus:\\
+\indent\indent\indent\tt     foldr f z $\bot$   = $\bot$\\ (foldr.$\bot$)
+\\
+\rm Now we're ready to prove the property for the 3 cases talked about earlier.\\
+\indent P(\tt[]\rm):
+\begin{verbatim}
+        (foldr f e . map g) [] = foldr (f . g) e []
+        (foldr f e . map g) [] = e                       {by foldr.0}
+        foldr f e (map g [])   = e                       {definition of .}
+        foldr f e []           = e                       {by map.0}
+        e                      = e                       {by foldr.0}
+\end{verbatim}
+
+\pagebreak
+
+% the disgusting mess below is the result of needing to put \bot in my equation
+% but still wanting the \tt font that verbatim provides.
+% perhaps it would be much better to find some actual code insertion packages
+% or use eqnarray like I usually do...
+
+\indent P($\bot$):\\
+\indent\indent\indent\tt (foldr f e . map g) $\bot$ = foldr (f . g) e $\bot$\\
+\indent\indent\indent    (foldr f e . map g) $\bot$ = $\bot$ \indent\indent
+\indent\indent\indent\indent\indent\indent\{by foldr.$\bot$\}\\
+\indent\indent\indent    foldr f e (map g $\bot$) = $\bot$ \indent\indent
+\indent\indent\indent\indent\indent\indent\indent\{definition of .\}\\
+\indent\indent\indent    foldr f e $\bot$ = $\bot$ \indent\indent
+\indent\indent\indent\indent\indent\indent\indent\indent\indent\indent\{by foldr.$\bot$\}\\
+\indent\indent\indent    $\bot$ = $\bot$ \indent\indent\indent\indent\indent
+\indent\indent\indent\indent\indent\indent\indent\indent\indent\indent\{by foldr.$\bot$\}\\
+\\
+\indent\rm P(xs) $\Rightarrow$ P(x:xs):
+\begin{verbatim}
+        (foldr f e . map g) (x:xs)    = foldr (f . g) e (x:xs)
+        (foldr f e . map g) (x:xs)    = (f . g) x (foldr (f . g) e xs)     {by foldr.1}
+        (foldr f e . map g) (x:xs)    = (f . g) x ((foldr f e . map g) xs) {induction, P(xs)}
+        foldr f e (map g (x:xs))      = (f . g) x ((foldr f e . map g) xs) {definition of .}
+        foldr f e (g x : map g xs)    = (f . g) x ((foldr f e . map g) xs) {by map.1}
+        f (g x) (foldr f e (map g xs) = (f . g) x ((foldr f e . map g) xs) {by foldr.1}
+        f (g x) (foldr f e (map g xs) = f (g x) (foldr f e (map g xs))     {definition of .}
+\end{verbatim}
+$\blacksquare$
+
+\end{document}
