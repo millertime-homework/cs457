@@ -80,6 +80,7 @@ LHS = (foldr f e . map g) []
     = e                                  {by foldr.0}
 RHS = foldr (f . g) e []
     = e                                  {by foldr.0}
+LHS = RHS
 \end{lstlisting}
 
 % this one looks like the validations are further, but it's cause of $\bot$
@@ -94,6 +95,7 @@ LHS = (foldr f e . map g) $\bot$
     = $\bot$                                   {by foldr.$\bot$}
 RHS = foldr (f . g) e $\bot$
     = $\bot$                                   {by foldr.$\bot$}
+LHS = RHS
 \end{lstlisting}
 
 \indent \lstinline{P(xs) $\Rightarrow$ P(x:xs)}:\\
@@ -108,7 +110,114 @@ RHS = foldr (f . g) e (x:xs)
     = (f . g) x (foldr (f . g) e xs)     {by foldr.1}
     = (f . g) x ((foldr f e . map g) xs) {induction, P(xs)}
     = f (g x) (foldr f e (map g xs))     {definition of .}
-\end{lstlisting}
+LHS = RHS
 $\blacksquare$
+\end{lstlisting}
+
+\textbf{Practical application of this law?}
+Well on the left side of this law is a foldr and a map. In order to apply
+functions f and g it goes over the input list twice. The better version on
+the right, which we have shown to be equivalent, only goes through the list
+once and applies both functions to each element.
+
+\pagebreak
+
+\section*{QUESTION 2}
+\textbf{Using the definition of \lstinline{stretch} and \lstinline{rotate}
+(below), prove the following law holds for all values of $\theta$
+and \lstinline{m}.}\\
+\lstinline[mathescape]{    rotate $\theta$ . stretch m = stretch m . rotate $\theta$}\\
+
+The functions \lstinline{stretch} and \lstinline{rotate}, as defined by Mark
+in class:
+\begin{lstlisting}
+  stretch m src = \(u,v) -> src (u/m, v/m)
+  rotate $\theta$ src   = \(u,v) -> src (c*u - s*v, s*u + c*v)
+                         where c = cos $\theta$
+                               s = sin $\theta$
+\end{lstlisting}
+
+In order to prove this we'll add an argument to the law, on both sides.
+\begin{lstlisting}
+  (rotate $\theta$ . stretch m) src = (stretch m .rotate $\theta$) src
+\end{lstlisting}
+
+\begin{lstlisting}
+LHS = (rotate $\theta$ . stretch m) src
+    = rotate $\theta$ (stretch m src)             {definition of .}
+    = rotate $\theta$ (\(u,v) -> src (u/m, v/m))  {definition of stretch}
+    
+    = (\(w,x) -> src (c*w - s*x, s*w + c*x)) (\(u,v) -> (u/m, v/m))
+         where c = cos $\theta$
+               s = sin $\theta$                   {definition of rotate}
+    = \(w,x) -> src (c*(w/m) - s*(x/m), s*(w/m) + c*(x/m))
+         where c = cos $\theta$
+               s = sin $\theta$                   {by applying the \(u,v) function}
+RHS = (stretch m . rotate $\theta$) src
+    = stretch m (rotate $\theta$ src)             {definition of .}
+    = stretch m (\(u,v) -> src (c*u - s*v, s*u + c*v))
+         where c = cos $\theta$
+               s = sin $\theta$                   {definition of rotate}
+    = (\(w,x) -> src (w/m, x/m)) (\(u,v) -> src (c*u - s*v, s*u + c*v))
+         where c = cos $\theta$
+               s = sin $\theta$                   {definition of stretch}
+    = (\(w,x) -> src ((c*w - s*x)/m, (s*w + c*x)/m))
+         where c = cos $\theta$
+               s = sin $\theta$                   {by applying the \(u,v) function}
+    = (\(w,x) -> src ((c*w)/m - (s*x)/m, (s*w)/m + (c*x)/m))
+         where c = cos $\theta$
+               s = sin $\theta$                   {math! (distribute the (1/m))}
+    = (\(w,x) -> src (c*(w/m) - s*(x/m), s*(w/m) + c*(x/m)))
+         where c = cos $\theta$
+               s = sin $\theta$                   {math! (associativity of * and /)}
+LHS = RHS
+$\blacksquare$
+\end{lstlisting}
+
+\textbf{Would this law be valid if stretch and rotate were being applied to
+rectangular grids of pixels?}\\
+Yes. The thing we're applying these functions to is an arbitrary collection of 
+Points. Regardless of the shape, the stretch and rotate are associative because
+of the associativity of the multiplication and division happening to the points.
+
+\pagebreak
+
+\section*{QUESTION 3}
+\textbf{Rewrite the Image functions from the class slides, as a data type.}\\
+We have a definition of each shape given on the slides:
+\begin{lstlisting}
+  rectangle        :: Float -> Float -> color -> Image color
+  rectangle h w col = ...
+\end{lstlisting}
+We're calling our new data type ImageD.
+\begin{lstlisting}
+  data ImageD color = Rectangle Float Float color
+                    | Square Float color
+                    | Circle Float color
+                    | Semi color
+                    | Over (ImageD color) (ImageD color)
+                    | Mask (ImageD color) (ImageD color)
+                    | Translate Point (ImageD color)
+                    | Stretch Float (ImageD color)
+                    | XStretch Float (ImageD color)
+                    | YStretch Float (ImageD color)
+                    | XReflect (ImageD color)
+                    | YReflect (ImageD color)
+                    | Rotate Float (ImageD color)
+\end{lstlisting}
+
+\noindent\textbf{Show how we can convert an ImageD to an Image.}
+
+\begin{lstlisting}
+  render :: ImageD color -> Image color
+  render (Rectangle h w col) = \(u,v) -> if u>=0 && u<=w && v>=0 && v<=h 
+                                           then Just col 
+                                           else Nothing
+\end{lstlisting}
+
+\noindent Or, assuming we have the definition of the \lstinline{rectangle} function...
+\begin{lstlisting}
+  render (Rectangle h w col) = rectangle h w col
+\end{lstlisting}
 
 \end{document}
