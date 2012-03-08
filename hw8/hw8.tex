@@ -209,7 +209,7 @@ We're calling our new data type ImageD.
 \noindent\textbf{Show how we can convert an ImageD to an Image.}
 
 \begin{lstlisting}
-  render :: ImageD color -> Image color
+  render                    :: ImageD color -> Image color
   render (Rectangle h w col) = \(u,v) -> if u>=0 && u<=w && v>=0 && v<=h 
                                            then Just col 
                                            else Nothing
@@ -219,5 +219,27 @@ We're calling our new data type ImageD.
 \begin{lstlisting}
   render (Rectangle h w col) = rectangle h w col
 \end{lstlisting}
+
+\noindent I'll demonstrate a combinator by writing \lstinline{over}.
+Again we use the original function. This requires that \lstinline{top} and
+\lstinline{bot} be converted from \lstinline{ImageD} to \lstinline{Image}, which is
+exactly what \lstinline{render} does!
+\begin{lstlisting}
+  render (Over top bot)      = over (render top) (render bot)
+\end{lstlisting}
+
+\noindent Lastly, a transformation. We'll rewrite \lstinline{stretch}. The pattern is the same.
+\begin{lstlisting}
+  render (Stretch m src)     = stretch m (render src)
+\end{lstlisting}
+
+\noindent\textbf{Strengths and weaknesses of \lstinline{data} versus functions?}\\
+Well it appears there is a simple pattern to add functionality to this \lstinline{ImageD}
+data type we've defined. That works well because we already had the functions written.
+Had we not, it would have been a lot of work to operate on the \lstinline{color} values.\\
+Defining a show function for these would only need to be done once. However, adding a new
+primitive would require expanding the definition of the \lstinline{ImageD} data type and
+also (possibly) writing a function for render to call. Which, of course, means we'd need
+to add a pattern to the render function.
 
 \end{document}
