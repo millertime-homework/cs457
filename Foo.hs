@@ -67,3 +67,26 @@ natToInt (Succ m) = 1 + natToInt m
 intToNat  :: Int -> Nat
 intToNat 0 = Zero
 intToNat x = Succ (intToNat (x-1))
+
+-- Using >>= with a list MONADS AHHHH
+-- >>= :: [a] -> (a -> [b])
+
+tryit = do { putStr "[1,2,3] >>= (take 3 . repeat) = "
+           ; let x = [1,2,3] >>= (take 3 . repeat)
+           ; print x
+           }
+
+data Date =
+  MkDate {
+    day   :: Int,
+    month :: Int,
+    year  :: Int } 
+      deriving (Show, Read)
+
+quickSort       :: Ord a => [a] -> [a]
+quickSort []     = []
+quickSort [x]    = [x]
+quickSort (x:xs) = quickSort (filter (<=x) xs) ++ x : quickSort (filter (>x) xs)
+
+sortMin :: Ord a => [a] -> a
+sortMin  = head . quickSort
