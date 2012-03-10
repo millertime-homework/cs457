@@ -1,4 +1,4 @@
-module HaskBeatz where
+module Main where
 
 import Haskore.Basic.Dynamics
 import Haskore.Melody
