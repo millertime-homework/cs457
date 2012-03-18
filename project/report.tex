@@ -1,0 +1,169 @@
+% CS457 Functional Programming Term Project
+
+\documentclass{article}
+\usepackage{anysize}
+%\usepackage{wasysym}
+%\usepackage{graphicx}
+\usepackage{listings}
+
+\marginsize{2cm}{2cm}{2cm}{2cm}
+
+\title{CS457 Functional Programming\\
+Winter 2012\\
+Term Project - MIDI Drums with Haskore}
+\author{Russell Miller}
+\date{\today}
+
+\begin{document}
+
+\lstset{language=Haskell, basicstyle=\ttfamily}
+
+\maketitle
+
+\section*{Abstract}
+I've recently become interested in MIDI and music technology. Part
+of that is the class I just took this term called \emph{Modern Music
+Technology}. I've played guitar on and off for about ten years, but I've
+never been in a band. The idea that I can construct my band with MIDI
+is rather appealing. I did a term project in that class to mix MIDI drums
+with my guitar playing. It didn't turn out wonderfully, but it was a lot of
+fun to do.\\
+\\
+My ambitious hope was to use the Haskell library Haskore to do so.
+Unfortunately, I didn't pursue that very diligently. I just used a MIDI
+keyboard. The Haskore Music System is an interesting library, though. I'm
+going to go through the steps to building a beat. I'll start out basic,
+since that's about the extent of my knowledge of drums. Perhaps then we'll
+be able to expand on it.
+
+\section*{Set Up}
+Assuming you have \lstinline{cabal} the set-up shouldn't be too painful. You
+can follow the instructions on the Haskore 
+website.\footnote{http://www.haskell.org/haskellwiki/Haskore} The one thing
+that they don't tell you is that you'll also want to install 
+\lstinline{haskore-vintage}.
+\begin{lstlisting}[mathescape=false]
+  $ cabal install haskore-vintage
+\end{lstlisting}
+There are helpful tutorials available, but to learn to use the Drum portion
+of Haskore I just read the source files on 
+Hackage.\footnote{http://hackage.haskell.org/package/haskore} In particular,
+the most helpful code comments were in the Drum 
+module.\footnote{http://hackage.haskell.org/packages/archive/haskore/0.2.0.2/doc/html/src/Haskore-Composition-Drum.html}
+
+\section*{Drums!}
+In the Drum module there is even an example drum beat called
+\lstinline{funkGroove} that gives you an idea of how to construct your own
+beats.
+\begin{lstlisting}
+> funkGroove :: MidiMusic.T
+> funkGroove =
+>     let p1 = toMusic GM.LowTom        qn na
+>         p2 = toMusic GM.AcousticSnare en na
+>     in changeTempo 3 (Music.take 8 (Music.repeat
+>          ( (Music.line [p1, qnr, p2, qnr, p2,
+>                         p1, p1, qnr, p2, enr])
+>            =:= roll en (toMusic GM.ClosedHiHat 2 na) )
+>        ))
+\end{lstlisting}
+
+\pagebreak
+
+To hear the effect of this beat (as an actual MIDI file), you'll need to render
+it. That was covered in the tutorials I found. Here is the boiler plate.
+\begin{lstlisting}
+> import Haskore.Interface.MIDI.Render as Render
+> import Haskore.Composition.Drum (funkGroove)
+
+> main = Render.fileFromGeneralMIDIMusic "drums.midi" funkGroove
+\end{lstlisting}
+Sure enough, this results in a MIDI file in your directory that plays a funky
+beat. From there, we can begin constructing our own beat. Starting from the
+bottom (I think), we'll just roll the hi-hat. This is being done in 
+\lstinline{funkGroove} and is the last line.
+
+\begin{lstlisting}
+> import Sound.MIDI.General as GM
+> import Haskore.Basic.Duration (qn)
+> import Haskore.Music (changeTempo)
+> import qualified Haskore.Music as Music
+
+> main = Render.fileFromGeneralMIDIMusic "drums.midi" song
+
+> song = changeTempo 3
+>      $ Music.take 8
+>      $ Music.repeat
+>      $ roll qn (toMusic GM.ClosedHiHat 1 na)
+\end{lstlisting}
+Here we have a function that sets the tempo, we use \lstinline{Music.take}
+to specify 4 measures, and we roll the hi-hat. Here I've changed it to use
+quarter notes instead of eighth notes. If that sounds Greek to you, each measure
+of music is broken into 4 beats (using standard time measures for simplicity),
+so a quarter note takes one fourth of the measure. An eighth note takes one
+eighth and is twice as fast. We're slowing it down to make the sound build
+more clearly.\\
+\\
+\indent Let's add a bass kick. \lstinline{funkGroove} didn't bother to use the bass!
+All of the available instruments are listed under Sound.MIDI.General on 
+Hackage.\footnote{http://hackage.haskell.org/packages/archive/midi/0.1.7/doc/html/Sound-MIDI-General.html}
+\begin{lstlisting}
+> song = changeTempo 3
+>      $ Music.take 8
+>      $ Music.repeat
+>      $ hiHat =:= bassKick
+
+> hiHat = roll qn (toMusic GM.ClosedHiHat 1 na)
+
+> bassKick =
+>      let kick = toMusic GM.BassDrum1 qn na
+>      in Music.line [kick, qnr, qnr, qnr]
+\end{lstlisting}
+The \lstinline{qnr} values here mean ``quarter note rest'' and are provided
+in \lstinline{Haskore.Music}. Also provided is the operatore \lstinline{(=:=)},
+which allows you to add notes in parallel. There is a similar operator
+\lstinline{(=+=)} which sequences parts together. What we're doing is basically
+adding a layer on top of the existing hi-hat.\\
+\\
+\indent This needs snare.
+\begin{lstlisting}
+> song = changeTempo 3
+>      $ Music.take 4
+>      $ Music.repeat
+>      $ hiHat =:= bassKick =:= snare
+
+> snare =
+>      let psk = toMusic GM.AcousticSnare qn na
+>      in Music.line [qnr, qnr, psk, qnr]
+\end{lstlisting}
+Alright, now it sounds like real drums! Let's mix it up.
+\begin{lstlisting}
+> song = changeTempo 3
+>      $ Music.take 4
+>      $ Music.repeat
+>      $ hiHat =:= bassKick =:= snare
+
+> hiHat = roll qn (toMusic GM.ClosedHiHat 2 na)
+
+> bassKick =
+>      let kick = toMusic GM.BassDrum1 qn na
+>      in Music.line [kick, qnr, qnr, qnr, kick, kick, qnr, qnr]
+
+> snare =
+>      let psk = toMusic GM.AcousticSnare qn na
+>      in Music.line [qnr, qnr, psk, qnr, qnr, qnr, psk, qnr]
+\end{lstlisting}
+What I've done here is expand our one-measure beat to cover two measures.
+Every other measure instead of one bass kick there are two in a row.\\
+\\
+Now we'll turn that speed dial back up to make it sound pretty rockin'! Just
+by changing \lstinline{qn} to \lstinline{en} for the hiHat, we get an awesome beat.
+\pagebreak
+
+\section*{Appendix: Thanks to...}
+I want to give some credit here to Ben Carr cause he actually knows how to 
+play drums and helped me out by telling me the basics.\\
+\\
+Another really useful resource was this Haskore-Guide I used.\\
+https://github.com/nfjinjing/haskore-guide
+
+\end{document}
