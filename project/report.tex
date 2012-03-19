@@ -122,8 +122,11 @@ The \lstinline{qnr} values here mean ``quarter note rest'' and are provided
 in \lstinline{Haskore.Music}. Also provided is the operatore \lstinline{(=:=)},
 which allows you to add notes in parallel. There is a similar operator
 \lstinline{(=+=)} which sequences parts together. What we're doing is basically
-adding a layer on top of the existing hi-hat.\\
-\\
+adding a layer on top of the existing hi-hat. Each time \lstinline{kick} shows
+up in that list, there is a quarter note (hence \lstinline{qn}) of bass drum sound.\\
+
+\pagebreak
+
 \indent This needs snare.
 \begin{lstlisting}
 > song = changeTempo 3
@@ -156,7 +159,52 @@ What I've done here is expand our one-measure beat to cover two measures.
 Every other measure instead of one bass kick there are two in a row.\\
 \\
 Now we'll turn that speed dial back up to make it sound pretty rockin'! Just
-by changing \lstinline{qn} to \lstinline{en} for the hiHat, we get an awesome beat.
+by changing \lstinline{qn} to \lstinline{en} for the hiHat, we get an awesome
+beat.\\
+\\
+I was able to write a few other beats this way, and I decided I should just import
+most of that code from a module. The way that looks is
+\begin{lstlisting}
+> module Beatz where
+
+> renderMidi xs = Render.fileFromGeneralMIDIMusic "beat.midi" song
+>    where song = changeTempo 3
+>               $ Music.take 6
+>               $ Music.repeat
+>               $ (foldl (=:=) (Music.line [])) xs
+\end{lstlisting}
+and now I can just import \lstinline{Beatz} and call the \lstinline{renderMidi}
+function with a list of instruments.
+
+\pagebreak
+
+Here's a fun beat that demonstrates it.
+\begin{lstlisting}
+> import Beatz
+
+> main  = renderMidi [snare, hiHat, bassKick]
+
+> snare = let psk = toMusic GM.AcousticSnare hn na
+>         in Music.line [qnr, qnr, psk, qnr, qnr, psk]
+
+> hiHat = roll qn (toMusic GM.ClosedHiHat 2 na)
+
+> bassKick =
+>         let k1 = toMusic GM.BassDrum1 hn na -- half note kick                                                                                                                       
+>             k2 = toMusic GM.BassDrum1 en na -- eighth note kick                                                                                                                     
+>         in Music.line [k1, enr, k2, enr, k2, k2, k2, qnr, enr, k2]
+\end{lstlisting}
+
+\section*{Where to go from here}
+\indent I had big ambitions for this project, but I had trouble getting momentum. 
+I spent too much time on small details and had difficulty understanding the big
+Haskore system. I wasn't sure exactly what I wanted to do with this, but one 
+possibility is to parameterize drum beats in a way that allows someone to use the 
+\lstinline{Beatz} module and really just pass a few parameters like tempo and
+number of pieces in the drum set -- perhaps also selecting a preset drum ``style''
+-- and the rest of the process would be automated. I'm not sure how useful that
+would be, in comparison to customizing the drum parts yourself.
+
 \pagebreak
 
 \section*{Appendix: Thanks to...}
