@@ -1,5 +1,7 @@
 module Main where
 
+import Beatz
+
 import Haskore.Music (changeTempo, qnr, (=:=)) -- (qnr, enr, (=:=), changeTempo, rest, )
 import Haskore.Basic.Duration (qn, en)
 import Haskore.Composition.Trill
@@ -9,14 +11,7 @@ import Haskore.Composition.Drum
 
 import qualified Haskore.Music as Music
 
-main = Render.fileFromGeneralMIDIMusic "speeditup.midi" song
-
-song = hiHatRoll
-
-hiHatRoll = changeTempo 3
-          $ Music.take 4
-          $ Music.repeat
-          $ hiHat =:= bassKick =:= snare
+main = renderMidi [snare, hiHat, bassKick]
 
 snare = let psk = toMusic GM.AcousticSnare qn na
         in Music.line [qnr, qnr, psk, qnr, qnr, qnr, psk, qnr]
